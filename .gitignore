@@ -1,0 +1,25 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+pytest-cache-files-*/
+*.egg-info/
+build/
+dist/
+request.json
+# Additional environment files
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+__MACOSX/
+
+# Other caches
+.mypy_cache/
+
+# Local databases and backups
+*.sqlite3
+*.dump

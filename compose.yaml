@@ -1,0 +1,50 @@
+name: pastebin-service
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: pastebin
+      POSTGRES_USER: pastebin
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pastebin -d pastebin"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      target: runtime
+    environment:
+      DATABASE_URL: postgresql+psycopg://pastebin:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/pastebin
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/openapi.json', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  # Runs only when explicitly requested; never uses the application database.
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      target: test
+    environment:
+      TEST_DATABASE_URL: postgresql+psycopg://pastebin:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/pastebin_test
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
