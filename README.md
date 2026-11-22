@@ -1,5 +1,7 @@
 # Pastebin Service v0.2
 
+[![Tests](https://github.com/icechainda-ui/pastebin-api/actions/workflows/tests.yml/badge.svg)](https://github.com/icechainda-ui/pastebin-api/actions/workflows/tests.yml)
+
 REST API для создания, хранения и управления текстовыми записями (paste).
 
 Проект разработан на Python и FastAPI с использованием PostgreSQL.
