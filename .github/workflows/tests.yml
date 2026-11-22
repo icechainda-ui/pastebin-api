@@ -1,0 +1,32 @@
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      POSTGRES_PASSWORD: ci-only-test-password
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start PostgreSQL
+        run: docker compose up -d --wait db
+
+      - name: Create test database
+        run: docker compose exec -T db createdb -U pastebin pastebin_test
+
+      - name: Run integration tests
+        run: docker compose --profile test run --build --rm tests
+
+      - name: Clean up
+        if: always()
+        run: docker compose down -v
